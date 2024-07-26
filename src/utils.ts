@@ -49,20 +49,18 @@ const mapJsonToDeploymentsFormatV1 = (deployment: SingletonDeploymentJSON): Sing
  * @param {SingletonDeploymentJSON} deployment - The deployment JSON object to map.
  * @returns {SingletonDeploymentV2} - The mapped deployment object in V2 format.
  */
-const mapJsonToDeploymentsFormatV2 = (deployment: SingletonDeploymentJSON): SingletonDeploymentV2 => {
-  const newJson = { ...deployment };
-  newJson.networkAddresses = Object.fromEntries(
+const mapJsonToDeploymentsFormatV2 = (deployment: SingletonDeploymentJSON): SingletonDeploymentV2 => ({
+  ...deployment,
+  networkAddresses: Object.fromEntries(
     Object.entries(deployment.networkAddresses).map(([chainId, addressTypes]) => [
       chainId,
-      (Array.isArray(addressTypes)
+      Array.isArray(addressTypes)
         ? // The usage of non-null assertion below is safe, because we validate that the asset files are properly formed in tests
-          (addressTypes.map((addressType) => deployment.deployments[addressType]!.address) as AddressType[])
-        : deployment.deployments[addressTypes]!.address) as AddressType,
+          addressTypes.map((addressType) => deployment.deployments[addressType]!.address) as AddressType[]
+        : deployment.deployments[addressTypes]!.address as AddressType,
     ]),
-  );
-
-  return newJson;
-};
+  ),
+});
 
 /**
  * Finds a deployment that matches the given criteria.
